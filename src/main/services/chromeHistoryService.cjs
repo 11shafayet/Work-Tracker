@@ -78,4 +78,50 @@ function getLatestChromeVisit(maxAgeMs = 15 * 60 * 1000) {
   return null;
 }
 
-module.exports = { getLatestChromeVisit };
+function getRecentChromeVisits(sinceUnixMs, maxRows = 500) {
+  const visits = [];
+
+  for (const historyPath of getChromeHistoryPaths()) {
+    const tempPath = path.join(os.tmpdir(), `worktracker-history-${process.pid}-${Date.now()}.db`);
+
+    try {
+      fs.copyFileSync(historyPath, tempPath);
+      const db = new Database(tempPath, { readonly: true });
+      const rows = db.prepare(`
+        SELECT url, title, last_visit_time AS lastVisitTime
+        FROM urls
+        WHERE url NOT LIKE 'chrome://%'
+          AND url NOT LIKE 'chrome-extension://%'
+          AND last_visit_time > ?
+        ORDER BY last_visit_time ASC
+        LIMIT ?
+      `).all((sinceUnixMs * 1000) + CHROME_EPOCH_OFFSET_MICROSECONDS, maxRows);
+      db.close();
+
+      for (const row of rows) {
+        visits.push({
+          url: row.url || '',
+          title: row.title || '',
+          visitedAt: chromeTimeToUnixMs(row.lastVisitTime)
+        });
+      }
+    } catch (_error) {
+      // History can be locked or profile-specific. Try the next profile.
+    } finally {
+      try {
+        fs.rmSync(tempPath, { force: true });
+      } catch (_ignored) {
+        // Best effort temp cleanup.
+      }
+    }
+  }
+
+  const uniqueVisits = new Map();
+  for (const visit of visits.sort((a, b) => a.visitedAt - b.visitedAt)) {
+    uniqueVisits.set(`${visit.url}|${visit.visitedAt}`, visit);
+  }
+
+  return [...uniqueVisits.values()];
+}
+
+module.exports = { getLatestChromeVisit, getRecentChromeVisits };

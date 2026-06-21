@@ -2,7 +2,7 @@ const { EventEmitter } = require('node:events');
 const { getActiveWindow } = require('./activeWindowService.cjs');
 const { getSystemIdleSeconds } = require('./idleService.cjs');
 const { classifySiteFromWindowTitle, isBrowserApp } = require('./siteClassifier.cjs');
-const { getLatestChromeVisit } = require('./chromeHistoryService.cjs');
+const { getLatestChromeVisit, getRecentChromeVisits } = require('./chromeHistoryService.cjs');
 
 const TICK_INTERVAL_MS = 1000;
 const IDLE_THRESHOLD_SECONDS = 60;
@@ -23,6 +23,10 @@ function subtractDays(date, days) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - days);
 }
 
+function startOfLocalDay(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
+
 class TrackingService extends EventEmitter {
   constructor({ sessionRepository, appUsageRepository, siteUsageRepository, dailyTotalsRepository, reportRepository }) {
     super();
@@ -34,6 +38,8 @@ class TrackingService extends EventEmitter {
     this.currentSession = this.sessionRepository.findRunning() || null;
     this.interval = null;
     this.isTicking = false;
+    this.lastChromeHistoryPollAt = startOfLocalDay();
+    this.seenChromeVisitKeys = new Set();
 
     if (this.currentSession) {
       this.startTimer();
@@ -109,6 +115,8 @@ class TrackingService extends EventEmitter {
           lastSeenAt: nowIso
         });
 
+        this.recordRecentChromeVisits(now);
+
         if (isBrowserApp(activeWindow.appName)) {
           const latestVisit = /google chrome|chromium|brave|microsoft edge/i.test(activeWindow.appName)
             ? getLatestChromeVisit()
@@ -134,6 +142,34 @@ class TrackingService extends EventEmitter {
       this.emitState();
     } finally {
       this.isTicking = false;
+    }
+  }
+
+  recordRecentChromeVisits(now) {
+    const visits = getRecentChromeVisits(this.lastChromeHistoryPollAt);
+    this.lastChromeHistoryPollAt = now.getTime();
+
+    for (const visit of visits) {
+      const visitKey = `${visit.url}|${visit.visitedAt}`;
+      if (this.seenChromeVisitKeys.has(visitKey)) {
+        continue;
+      }
+
+      this.seenChromeVisitKeys.add(visitKey);
+      const site = classifySiteFromWindowTitle(visit.title, visit.url);
+      if (!site) {
+        continue;
+      }
+
+      const seenAt = new Date(visit.visitedAt || now.getTime()).toISOString();
+      this.siteUsageRepository.increment({
+        sessionId: this.currentSession.id,
+        usageDate: localDateKey(new Date(visit.visitedAt || now.getTime())),
+        siteName: site.siteName,
+        pageTitle: site.pageTitle,
+        seconds: 1,
+        lastSeenAt: seenAt
+      });
     }
   }
 

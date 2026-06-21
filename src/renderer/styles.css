@@ -162,6 +162,32 @@ button {
   gap: 16px;
 }
 
+.app-scroll-list,
+.site-list {
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-color: #94a3b8 #eef2f7;
+  scrollbar-width: thin;
+}
+
+.app-scroll-list::-webkit-scrollbar,
+.site-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.app-scroll-list::-webkit-scrollbar-track,
+.site-list::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: #eef2f7;
+}
+
+.app-scroll-list::-webkit-scrollbar-thumb,
+.site-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #94a3b8;
+}
+
 .app-row-top {
   display: flex;
   align-items: center;

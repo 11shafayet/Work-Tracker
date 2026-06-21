@@ -54,7 +54,7 @@ function TopApplications({ apps }) {
         <h2>Top Applications</h2>
         <span>Today</span>
       </div>
-      <div className="app-list">
+      <div className="app-list app-scroll-list">
         {apps.length === 0 ? (
           <p className="empty">No active application time recorded yet.</p>
         ) : apps.map((app) => (
@@ -85,7 +85,7 @@ function TopSites({ sites }) {
         <h2>Browser Sites</h2>
         <span>Today</span>
       </div>
-      <div className="app-list">
+      <div className="app-list site-list">
         {sites.length === 0 ? (
           <p className="empty">No browser site time recorded yet.</p>
         ) : sites.map((site) => (
