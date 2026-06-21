@@ -37,6 +37,19 @@ class SiteUsageRepository {
       LIMIT ?
     `).all(dayStartIso, nextDayIso, limit);
   }
+
+  getTopSitesByDate(startDay, endDay, limit = 20) {
+    return this.db.prepare(`
+      SELECT
+        site_name AS siteName,
+        COALESCE(SUM(duration_seconds), 0) AS durationSeconds
+      FROM site_usage
+      WHERE usage_date >= ? AND usage_date <= ?
+      GROUP BY site_name
+      ORDER BY durationSeconds DESC
+      LIMIT ?
+    `).all(startDay, endDay, limit);
+  }
 }
 
 module.exports = { SiteUsageRepository };

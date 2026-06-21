@@ -16,6 +16,7 @@ class ReportRepository {
   getDashboardSnapshot(currentSession = null) {
     const todayStart = startOfLocalDay();
     const tomorrowStart = addDays(todayStart, 1);
+    const thirtyDaysAgo = addDays(todayStart, -29);
     const todayTotals = this.dailyTotalsRepository.getDay(formatLocalDate(todayStart));
 
     return {
@@ -32,6 +33,14 @@ class ReportRepository {
       topSites: this.siteUsageRepository.getTopSites(
         todayStart.toISOString(),
         tomorrowStart.toISOString()
+      ),
+      last30DaysTopApplications: this.appUsageRepository.getTopApplicationsByDate(
+        formatLocalDate(thirtyDaysAgo),
+        formatLocalDate(todayStart)
+      ),
+      last30DaysTopSites: this.siteUsageRepository.getTopSitesByDate(
+        formatLocalDate(thirtyDaysAgo),
+        formatLocalDate(todayStart)
       ),
       history: this.dailyTotalsRepository.getHistory(30)
     };

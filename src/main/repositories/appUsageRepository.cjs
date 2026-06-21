@@ -37,6 +37,19 @@ class AppUsageRepository {
       LIMIT ?
     `).all(dayStartIso, nextDayIso, limit);
   }
+
+  getTopApplicationsByDate(startDay, endDay, limit = 20) {
+    return this.db.prepare(`
+      SELECT
+        app_name AS appName,
+        COALESCE(SUM(duration_seconds), 0) AS durationSeconds
+      FROM app_usage
+      WHERE usage_date >= ? AND usage_date <= ?
+      GROUP BY app_name
+      ORDER BY durationSeconds DESC
+      LIMIT ?
+    `).all(startDay, endDay, limit);
+  }
 }
 
 module.exports = { AppUsageRepository };

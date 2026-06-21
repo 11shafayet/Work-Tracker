@@ -12,6 +12,8 @@ const emptyState = {
   },
   topApplications: [],
   topSites: [],
+  last30DaysTopApplications: [],
+  last30DaysTopSites: [],
   history: []
 };
 
@@ -45,28 +47,31 @@ function StatCard({ label, value, tone }) {
   );
 }
 
-function TopApplications({ apps }) {
-  const maxSeconds = Math.max(...apps.map((app) => app.durationSeconds), 1);
+function UsageCard({ title, period, items, nameKey, emptyText, fillClassName }) {
+  const maxSeconds = Math.max(...items.map((item) => item.durationSeconds), 1);
 
   return (
-    <section className="panel">
+    <section className="panel usage-panel">
       <div className="panel-heading">
-        <h2>Top Applications</h2>
-        <span>Today</span>
+        <h2>{title}</h2>
+        <span>{period}</span>
       </div>
       <div className="app-list app-scroll-list">
-        {apps.length === 0 ? (
-          <p className="empty">No active application time recorded yet.</p>
-        ) : apps.map((app) => (
-          <div className="app-row" key={app.appName}>
+        {items.length === 0 ? (
+          <p className="empty">{emptyText}</p>
+        ) : items.map((item, index) => (
+          <div className="app-row" key={item[nameKey]}>
             <div className="app-row-top">
-              <span>{app.appName}</span>
-              <strong>{formatDuration(app.durationSeconds)}</strong>
+              <span>
+                <em>{String(index + 1).padStart(2, '0')}</em>
+                {item[nameKey]}
+              </span>
+              <strong>{formatDuration(item.durationSeconds)}</strong>
             </div>
             <div className="bar-track">
               <div
-                className="bar-fill"
-                style={{ width: `${Math.max(4, (app.durationSeconds / maxSeconds) * 100)}%` }}
+                className={fillClassName}
+                style={{ width: `${Math.max(4, (item.durationSeconds / maxSeconds) * 100)}%` }}
               />
             </div>
           </div>
@@ -76,34 +81,29 @@ function TopApplications({ apps }) {
   );
 }
 
-function TopSites({ sites }) {
-  const maxSeconds = Math.max(...sites.map((site) => site.durationSeconds), 1);
-
+function TopApplications({ apps }) {
   return (
-    <section className="panel">
-      <div className="panel-heading">
-        <h2>Browser Sites</h2>
-        <span>Today</span>
-      </div>
-      <div className="app-list site-list">
-        {sites.length === 0 ? (
-          <p className="empty">No browser site time recorded yet.</p>
-        ) : sites.map((site) => (
-          <div className="app-row" key={site.siteName}>
-            <div className="app-row-top">
-              <span>{site.siteName}</span>
-              <strong>{formatDuration(site.durationSeconds)}</strong>
-            </div>
-            <div className="bar-track">
-              <div
-                className="site-bar-fill"
-                style={{ width: `${Math.max(4, (site.durationSeconds / maxSeconds) * 100)}%` }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
+    <UsageCard
+      title="Top Applications"
+      period="Today"
+      items={apps}
+      nameKey="appName"
+      emptyText="No active application time recorded yet."
+      fillClassName="bar-fill"
+    />
+  );
+}
+
+function TopSites({ sites }) {
+  return (
+    <UsageCard
+      title="Browser Sites"
+      period="Today"
+      items={sites}
+      nameKey="siteName"
+      emptyText="No browser site time recorded yet."
+      fillClassName="site-bar-fill"
+    />
   );
 }
 
@@ -230,6 +230,25 @@ function App() {
       </div>
 
       <HistoryChart history={state.history} />
+
+      <div className="content-grid history-detail-grid">
+        <UsageCard
+          title="Top Applications"
+          period="Last 30 days"
+          items={state.last30DaysTopApplications || []}
+          nameKey="appName"
+          emptyText="No application history for the last 30 days."
+          fillClassName="thirty-app-bar-fill"
+        />
+        <UsageCard
+          title="Browser Sites"
+          period="Last 30 days"
+          items={state.last30DaysTopSites || []}
+          nameKey="siteName"
+          emptyText="No browser site history for the last 30 days."
+          fillClassName="thirty-site-bar-fill"
+        />
+      </div>
     </main>
   );
 }
