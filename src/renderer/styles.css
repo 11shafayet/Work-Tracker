@@ -506,6 +506,32 @@ button {
   gap: 8px;
   min-width: 0;
   height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  border-radius: 8px;
+  transition: background 0.18s ease;
+}
+
+.history-day:hover {
+  background: rgba(120, 140, 168, 0.08);
+}
+
+.history-day.selected .history-stack {
+  background: rgba(110, 168, 254, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(110, 168, 254, 0.5);
+}
+
+.history-day.selected .history-bar {
+  background: linear-gradient(180deg, #8cc0ff, var(--green));
+  filter: brightness(1.1);
+}
+
+.history-day.selected span {
+  color: var(--blue);
+  font-weight: 700;
 }
 
 .history-stack {
@@ -534,6 +560,95 @@ button {
   color: var(--muted);
   font-size: 11px;
   text-align: center;
+}
+
+.day-detail-panel {
+  margin-bottom: 20px;
+  border-color: rgba(110, 168, 254, 0.28);
+  background:
+    radial-gradient(640px 220px at 0% 0%, rgba(110, 168, 254, 0.12), transparent 70%),
+    var(--card-strong);
+}
+
+.day-detail-panel .panel-heading h2 {
+  font-size: 20px;
+}
+
+.detail-close {
+  border-radius: 999px;
+  border: 1px solid rgba(120, 140, 168, 0.28);
+  background: rgba(120, 140, 168, 0.1);
+  color: var(--text-soft);
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.detail-close:hover {
+  background: rgba(120, 140, 168, 0.18);
+  border-color: rgba(120, 140, 168, 0.42);
+}
+
+.day-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.mini-stat {
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: rgba(20, 26, 34, 0.55);
+}
+
+.mini-stat::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(110, 168, 254, 0.6), transparent);
+  content: "";
+}
+
+.mini-stat.active::before {
+  background: linear-gradient(90deg, transparent, rgba(95, 208, 180, 0.7), transparent);
+}
+
+.mini-stat.idle::before {
+  background: linear-gradient(90deg, transparent, rgba(243, 200, 121, 0.7), transparent);
+}
+
+.mini-stat span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.mini-stat strong {
+  display: block;
+  color: var(--text);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.day-detail-grid {
+  margin-bottom: 0;
+}
+
+@media (max-width: 980px) {
+  .day-detail-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 980px) {

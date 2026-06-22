@@ -45,6 +45,19 @@ class ReportRepository {
       history: this.dailyTotalsRepository.getHistory(30)
     };
   }
+
+  getDayDetails(day) {
+    const totals = this.dailyTotalsRepository.getDay(day);
+
+    return {
+      day,
+      trackedSeconds: totals.activeSeconds + totals.idleSeconds,
+      activeSeconds: totals.activeSeconds,
+      idleSeconds: totals.idleSeconds,
+      topApplications: this.appUsageRepository.getTopApplicationsByDate(day, day, 50),
+      topSites: this.siteUsageRepository.getTopSitesByDate(day, day, 10)
+    };
+  }
 }
 
 function formatLocalDate(date) {

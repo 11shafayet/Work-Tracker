@@ -165,4 +165,5 @@ app.on('before-quit', () => {
   ipcMain.removeHandler('tracking:get-state');
   ipcMain.removeHandler('tracking:start');
   ipcMain.removeHandler('tracking:stop');
+  ipcMain.removeHandler('tracking:get-day-details');
 });

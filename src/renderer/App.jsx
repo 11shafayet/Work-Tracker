@@ -107,29 +107,101 @@ function TopSites({ sites }) {
   );
 }
 
-function HistoryChart({ history }) {
+function HistoryChart({ history, selectedDay, onSelectDay }) {
   const maxSeconds = Math.max(...history.map((day) => day.activeSeconds + day.idleSeconds), 1);
 
   return (
     <section className="panel history-panel">
       <div className="panel-heading">
         <h2>Last 30 Days</h2>
-        <span>90-day retention</span>
+        <span>Click a day for details</span>
       </div>
       <div className="history-chart">
         {history.map((day) => {
           const total = day.activeSeconds + day.idleSeconds;
           const height = Math.max(4, (total / maxSeconds) * 100);
           const date = new Date(`${day.day}T00:00:00`);
+          const isSelected = day.day === selectedDay;
           return (
-            <div className="history-day" key={day.day} title={`${day.day}: ${formatDuration(total)}`}>
+            <button
+              type="button"
+              className={`history-day${isSelected ? ' selected' : ''}`}
+              key={day.day}
+              title={`${day.day}: ${formatDuration(total)}`}
+              onClick={() => onSelectDay(day.day)}
+            >
               <div className="history-stack">
                 <div className="history-bar" style={{ height: `${height}%` }} />
               </div>
               <span>{date.getDate()}</span>
-            </div>
+            </button>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+function formatDayLabel(day) {
+  const date = new Date(`${day}T00:00:00`);
+  return date.toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+function DayDetails({ details, onClose }) {
+  const active = details.activeSeconds;
+  const total = details.trackedSeconds;
+  const share = total > 0 ? Math.round((active / total) * 100) : 0;
+
+  return (
+    <section className="panel day-detail-panel">
+      <div className="panel-heading">
+        <h2>{formatDayLabel(details.day)}</h2>
+        <button type="button" className="detail-close" onClick={onClose}>
+          Close
+        </button>
+      </div>
+
+      <div className="day-detail-stats">
+        <div className="mini-stat">
+          <span>Tracked</span>
+          <strong>{formatDuration(details.trackedSeconds)}</strong>
+        </div>
+        <div className="mini-stat active">
+          <span>Active</span>
+          <strong>{formatDuration(details.activeSeconds)}</strong>
+        </div>
+        <div className="mini-stat idle">
+          <span>Idle</span>
+          <strong>{formatDuration(details.idleSeconds)}</strong>
+        </div>
+        <div className="mini-stat">
+          <span>Active Share</span>
+          <strong>{share}%</strong>
+        </div>
+      </div>
+
+      <div className="content-grid day-detail-grid">
+        <UsageCard
+          title="Applications"
+          period={formatDayLabel(details.day)}
+          items={details.topApplications || []}
+          nameKey="appName"
+          emptyText="No application time recorded on this day."
+          fillClassName="bar-fill"
+        />
+        <UsageCard
+          title="Top 10 Browser Sites"
+          period={formatDayLabel(details.day)}
+          items={details.topSites || []}
+          nameKey="siteName"
+          emptyText="No browser site time recorded on this day."
+          fillClassName="site-bar-fill"
+        />
       </div>
     </section>
   );
@@ -138,6 +210,25 @@ function HistoryChart({ history }) {
 function App() {
   const [state, setState] = useState(emptyState);
   const [loading, setLoading] = useState(true);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [dayDetails, setDayDetails] = useState(null);
+
+  async function selectDay(day) {
+    if (day === selectedDay) {
+      setSelectedDay(null);
+      setDayDetails(null);
+      return;
+    }
+
+    setSelectedDay(day);
+    const details = await window.workTracker.getDayDetails(day);
+    setDayDetails(details);
+  }
+
+  function closeDayDetails() {
+    setSelectedDay(null);
+    setDayDetails(null);
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -236,7 +327,9 @@ function App() {
         </section>
       </div>
 
-      <HistoryChart history={state.history} />
+      <HistoryChart history={state.history} selectedDay={selectedDay} onSelectDay={selectDay} />
+
+      {dayDetails && <DayDetails details={dayDetails} onClose={closeDayDetails} />}
 
       <div className="content-grid history-detail-grid">
         <UsageCard

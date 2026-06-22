@@ -189,6 +189,10 @@ class TrackingService extends EventEmitter {
     };
   }
 
+  getDayDetails(day) {
+    return this.reportRepository.getDayDetails(day);
+  }
+
   emitState() {
     this.emit('state', this.getState());
   }
