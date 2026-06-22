@@ -79,24 +79,23 @@ button {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-width: 128px;
-  height: 46px;
-  padding: 0 22px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 132px;
+  height: 48px;
+  padding: 0 26px;
+  border: 0;
   border-radius: 13px;
-  color: #0c1015;
+  color: #ffffff;
   cursor: pointer;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  box-shadow: var(--shadow-soft);
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
 .start-button:hover,
 .stop-button:hover {
   transform: translateY(-1px);
-  filter: brightness(1.05);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.38);
+  filter: brightness(1.08);
 }
 
 .start-button:active,
@@ -105,19 +104,29 @@ button {
 }
 
 .start-button {
-  background: linear-gradient(135deg, #74dcc1, var(--green));
+  background: linear-gradient(135deg, #16c79a 0%, #0e9f7e 100%);
+  box-shadow: 0 10px 26px rgba(22, 199, 154, 0.4);
+}
+
+.start-button:hover {
+  box-shadow: 0 14px 32px rgba(22, 199, 154, 0.52);
 }
 
 .stop-button {
-  background: linear-gradient(135deg, #f5a0ac, var(--rose));
+  background: linear-gradient(135deg, #f4516c 0%, #d62f4d 100%);
+  box-shadow: 0 10px 26px rgba(244, 81, 108, 0.4);
+}
+
+.stop-button:hover {
+  box-shadow: 0 14px 32px rgba(244, 81, 108, 0.52);
 }
 
 .button-dot {
   width: 9px;
   height: 9px;
   border-radius: 999px;
-  background: currentColor;
-  box-shadow: 0 0 0 4px rgba(12, 16, 21, 0.18);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.22);
 }
 
 .session-strip {
