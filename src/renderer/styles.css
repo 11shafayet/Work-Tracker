@@ -451,7 +451,7 @@ button {
 }
 
 .single-side {
-  grid-template-columns: minmax(320px, 0.9fr);
+  grid-template-columns: 1fr;
 }
 
 .session-meter {
