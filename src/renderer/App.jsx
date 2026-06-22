@@ -196,8 +196,15 @@ function App() {
         </button>
       </header>
 
+      <section className="session-strip">
+        <StatCard
+          label="Current Session"
+          value={loading ? 'Loading' : formatSessionDuration(state.currentSession)}
+          tone="session"
+        />
+      </section>
+
       <section className="status-strip">
-        <StatCard label="Current Session" value={loading ? 'Loading' : formatSessionDuration(state.currentSession)} />
         <StatCard label="Today Tracked" value={formatDuration(state.today.trackedSeconds)} />
         <StatCard label="Active Time" value={formatDuration(state.today.activeSeconds)} tone="active" />
         <StatCard label="Idle Time" value={formatDuration(state.today.idleSeconds)} tone="idle" />
