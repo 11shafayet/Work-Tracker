@@ -130,7 +130,13 @@ button {
 }
 
 .session-strip {
+  display: grid;
+  grid-template-columns: 1fr;
   margin-bottom: 16px;
+}
+
+.session-strip .stat-card.session {
+  width: 100%;
 }
 
 .status-strip {
