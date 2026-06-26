@@ -47,7 +47,7 @@ class TrackingService extends EventEmitter {
   }
 
   start() {
-    if (this.currentSession) {
+    if (this.currentSession && !this.currentSession.stopped_at) {
       return this.getState();
     }
 
@@ -59,7 +59,7 @@ class TrackingService extends EventEmitter {
   }
 
   stop() {
-    if (!this.currentSession) {
+    if (!this.currentSession || this.currentSession.stopped_at) {
       return this.getState();
     }
 
